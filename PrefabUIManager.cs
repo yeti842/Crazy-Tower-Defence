@@ -4,21 +4,13 @@ using UnityEngine.UI;
 
 public class PrefabUIManager : MonoBehaviour
 {
-    public GameObject buttonPrefab; // Prefab przycisku UI
     public Transform contentPanel; // Panel do umieszczenia przycisków
-    public string prefabFolderPath = "Prefab/MapEditorPrefabs"; // Zmieniona œcie¿ka do prefabów
+    public string prefabFolderPath = "Prefab/MapEditorPrefabs"; // Œcie¿ka do prefabów
 
     private List<GameObject> loadedPrefabs = new List<GameObject>();
 
     void Start()
     {
-        // Sprawdzamy, czy buttonPrefab i contentPanel s¹ przypisane
-        if (buttonPrefab == null)
-        {
-            Debug.LogError("buttonPrefab nie jest przypisany!");
-            return;
-        }
-
         if (contentPanel == null)
         {
             Debug.LogError("contentPanel nie jest przypisany!");
@@ -51,19 +43,35 @@ public class PrefabUIManager : MonoBehaviour
 
     void CreateButtonForPrefab(GameObject prefab)
     {
-        // Tworzenie przycisku dla ka¿dego prefaba
-        GameObject button = Instantiate(buttonPrefab);
+        // Tworzenie nowego przycisku w locie
+        GameObject button = new GameObject(prefab.name);
+        button.AddComponent<RectTransform>();
+        button.AddComponent<CanvasRenderer>();
+        Button uiButton = button.AddComponent<Button>();
         button.transform.SetParent(contentPanel, false);
 
-        // Ustawienie nazwy prefab jako tekstu na przycisku
-        Text buttonText = button.GetComponentInChildren<Text>();
-        if (buttonText != null)
+        Image prefabImage = prefab.GetComponent<Image>();
+        if (prefabImage != null)
         {
-            buttonText.text = prefab.name;
+            // Jeœli prefab ma komponent Image, ustaw Source Image
+            Image buttonImage = button.AddComponent<Image>();
+            buttonImage.sprite = prefabImage.sprite;
+            buttonImage.preserveAspect = true; // Zachowaj proporcje obrazu
+        }
+        else
+        {
+            // Jeœli prefab nie ma komponentu Image, ustaw bia³y kolor i wyœwietl komunikat w logu
+            Image buttonImage = button.AddComponent<Image>();
+            buttonImage.color = Color.white;
+            Debug.LogWarning("Prefab " + prefab.name + " nie ma komponentu Image.");
         }
 
+        // Ustaw rozmiar przycisku
+        RectTransform rectTransform = button.GetComponent<RectTransform>();
+        rectTransform.sizeDelta = new Vector2(100, 100);
+
         // Dodaj listener na przycisk
-        button.GetComponent<Button>().onClick.AddListener(() => OnPrefabButtonClick(prefab));
+        uiButton.onClick.AddListener(() => OnPrefabButtonClick(prefab));
     }
 
     void OnPrefabButtonClick(GameObject prefab)
