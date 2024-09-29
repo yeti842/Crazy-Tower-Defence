@@ -2,39 +2,20 @@ using UnityEngine;
 
 public class CameraMovement : MonoBehaviour
 {
-    public float moveSpeed = 10f; // Prêdkoœæ poruszania kamery
-    public float fastMoveMultiplier = 3f; // Mno¿nik szybszego ruchu kamery przy naciœniêciu Shifta
-    public float zoomSpeed = 10f; // Prêdkoœæ przybli¿ania/oddalania kamery
-    public float minZoom = 5f; // Minimalny zoom
-    public float maxZoom = 20f; // Maksymalny zoom
-
-    private Camera cam;
-
-    void Start()
-    {
-        cam = Camera.main;
-    }
+    public float speed = 5f;
 
     void Update()
     {
-        // Ustalanie prêdkoœci poruszania siê
-        float currentMoveSpeed = moveSpeed;
+        // Przesuwanie kamer¹ za pomoc¹ WSAD
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
+        transform.Translate(new Vector3(horizontal, vertical, 0) * speed * Time.deltaTime);
 
-        // Sprawdzanie czy Shift jest wciœniêty, aby zwiêkszyæ prêdkoœæ poruszania siê
-        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+        // Przesuwanie kamer¹ przy trzymaniu klikniêtej rolki myszki
+        if (Input.GetMouseButton(2))
         {
-            currentMoveSpeed *= fastMoveMultiplier;
+            Vector3 delta = Input.mousePosition - Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            transform.position -= delta * Time.deltaTime;
         }
-
-        // Poruszanie kamer¹ za pomoc¹ WSAD
-        Vector3 move = new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0);
-        transform.Translate(move * currentMoveSpeed * Time.deltaTime, Space.World);
-
-        // Zoomowanie za pomoc¹ rolki myszki
-        float scroll = Input.GetAxis("Mouse ScrollWheel");
-        float newZoom = cam.orthographicSize - scroll * zoomSpeed;
-
-        // Ograniczanie zoomu
-        cam.orthographicSize = Mathf.Clamp(newZoom, minZoom, maxZoom);
     }
 }

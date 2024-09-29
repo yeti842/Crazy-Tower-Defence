@@ -1,69 +1,48 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GridManager : MonoBehaviour
 {
-    public int width; // szerokoœæ siatki (iloœæ kolumn)
-    public int height; // wysokoœæ siatki (iloœæ wierszy)
-    public float tileSize = 1.0f; // rozmiar pojedynczej kratki
+    public int width = 10; // szerokoœæ siatki
+    public int height = 10; // wysokoœæ siatki
+    public float cellSize = 1f; // rozmiar komórki
 
-    private int[,] grid; // dwuwymiarowa tablica reprezentuj¹ca siatkê
+    public Dictionary<Vector2, GameObject> grid = new Dictionary<Vector2, GameObject>();
 
     void Start()
     {
-        // Inicjalizacja siatki (0 oznacza pust¹ kratkê)
-        grid = new int[width, height];
+        CreateGrid();
     }
 
-    // Rysowanie siatki w edytorze Unity, aby j¹ zobaczyæ
-    void OnDrawGizmos()
+    void CreateGrid()
     {
-        Gizmos.color = Color.grey;
+        // Automatyczne ³adowanie prefabu "BasicSquare" z Resources
+        GameObject basicSquarePrefab = Resources.Load<GameObject>("Prefab/MapEditorPrefabs/BasicSquare");
+
+        if (basicSquarePrefab == null)
+        {
+            Debug.LogError("Prefab 'BasicSquare' nie zosta³ znaleziony w folderze Resources.");
+            return;
+        }
+
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
-                Vector3 pos = GetWorldPosition(x, y);
-                Gizmos.DrawWireCube(pos, new Vector3(tileSize, tileSize, 0));
+                Vector2 position = new Vector2(x * cellSize, y * cellSize);
+                GameObject terrainTile = Instantiate(basicSquarePrefab, position, Quaternion.identity);
+                terrainTile.transform.SetParent(transform);
+                grid[position] = terrainTile;
             }
         }
     }
 
-    // Przekszta³canie wspó³rzêdnych siatki na pozycjê w œwiecie gry
-    public Vector3 GetWorldPosition(int x, int y)
+    public GameObject GetTileAtPosition(Vector2 position)
     {
-        return new Vector3(x * tileSize, y * tileSize, 0);
-    }
-
-    // Przekszta³canie wspó³rzêdnych œwiata na wspó³rzêdne siatki
-    public Vector2Int GetGridPosition(Vector3 worldPosition)
-    {
-        int x = Mathf.FloorToInt(worldPosition.x / tileSize);
-        int y = Mathf.FloorToInt(worldPosition.y / tileSize);
-        return new Vector2Int(x, y);
-    }
-
-    // Próba umieszczenia obiektu w okreœlonej kratce
-    public bool PlaceObject(Vector3 worldPosition)
-    {
-        Vector2Int gridPos = GetGridPosition(worldPosition);
-
-        if (IsInBounds(gridPos) && grid[gridPos.x, gridPos.y] == 0)
+        if (grid.ContainsKey(position))
         {
-            // Kratka jest pusta, mo¿na umieœciæ obiekt
-            grid[gridPos.x, gridPos.y] = 1;
-            return true;
+            return grid[position];
         }
-        else
-        {
-            // Kratka zajêta lub poza granicami siatki
-            Debug.Log("Nie mo¿na umieœciæ obiektu w tej kratce!");
-            return false;
-        }
-    }
-
-    // Sprawdzenie, czy wspó³rzêdne s¹ w granicach siatki
-    private bool IsInBounds(Vector2Int gridPos)
-    {
-        return gridPos.x >= 0 && gridPos.x < width && gridPos.y >= 0 && gridPos.y < height;
+        return null;
     }
 }
