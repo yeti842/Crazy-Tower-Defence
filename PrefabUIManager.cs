@@ -1,60 +1,58 @@
-using System.IO;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections.Generic;
 
 public class PrefabUIManager : MonoBehaviour
 {
-    public GameObject buttonPrefab; // Prefab przycisku UI, który stworzy³eœ
-    public Transform contentPanel; // Panel, w którym bêd¹ umieszczane przyciski
-    public string prefabFolderPath = "Assets/Resources/Prefab/MapEditorPrefabs"; // Œcie¿ka do folderu z prefabami
+    public GameObject buttonPrefab; // Prefab przycisku UI
+    public Transform contentPanel; // Panel do umieszczenia przycisków
+    public string prefabFolderPath = "Prefab/MapEditorPrefabs"; // Zmieniona œcie¿ka do prefabów
 
     private List<GameObject> loadedPrefabs = new List<GameObject>();
 
     void Start()
     {
         LoadPrefabsFromFolder();
-        Debug.Log("1");
     }
 
     void LoadPrefabsFromFolder()
     {
-        // Pobierz wszystkie prefaby z folderu
+        // £adowanie wszystkich prefabów z folderu w Resources
         Object[] prefabObjects = Resources.LoadAll(prefabFolderPath, typeof(GameObject));
-        Debug.Log("2");
+
+        if (prefabObjects.Length == 0)
+        {
+            Debug.Log("Nie znaleziono ¿adnych prefabów w folderze: " + prefabFolderPath);
+            return;
+        }
+
+        Debug.Log("Za³adowano " + prefabObjects.Length + " prefabów.");
 
         foreach (Object prefab in prefabObjects)
         {
             GameObject prefabGameObject = (GameObject)prefab;
             loadedPrefabs.Add(prefabGameObject);
             CreateButtonForPrefab(prefabGameObject);
-            Debug.Log("3");
         }
     }
 
     void CreateButtonForPrefab(GameObject prefab)
     {
-        // Stwórz przycisk dla ka¿dego prefaba
+        // Tworzenie przycisku dla ka¿dego prefaba
         GameObject button = Instantiate(buttonPrefab);
         button.transform.SetParent(contentPanel, false);
 
-        // Ustaw nazwê prefab jako tekst na przycisku (opcjonalnie)
+        // Ustawienie nazwy prefab jako tekstu na przycisku
         button.GetComponentInChildren<Text>().text = prefab.name;
 
-        // Dodaj obrazek jako ikona przycisku (jeœli masz obrazki)
-        // button.GetComponent<Image>().sprite = ...;
-
-        // Dodaj listener na przycisk, który pozwala na klikniêcie
+        // Dodaj listener na przycisk
         button.GetComponent<Button>().onClick.AddListener(() => OnPrefabButtonClick(prefab));
-        Debug.Log("4");
     }
 
     void OnPrefabButtonClick(GameObject prefab)
     {
         // Logika po klikniêciu na przycisk prefaba
-        // Mo¿esz tutaj np. aktywowaæ tryb budowania i umo¿liwiæ umieszczanie prefabów na mapie
         Debug.Log("Wybrano prefab: " + prefab.name);
-        // Tutaj mo¿esz ustawiæ wybrany prefab jako aktywny do umieszczenia na mapie
-        Debug.Log("5");
+        // Mo¿esz tutaj dodaæ logikê, aby ustawiæ wybrany prefab do umieszczenia na mapie
     }
 }
