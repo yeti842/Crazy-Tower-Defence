@@ -12,6 +12,19 @@ public class PrefabUIManager : MonoBehaviour
 
     void Start()
     {
+        // Sprawdzamy, czy buttonPrefab i contentPanel s¹ przypisane
+        if (buttonPrefab == null)
+        {
+            Debug.LogError("buttonPrefab nie jest przypisany!");
+            return;
+        }
+
+        if (contentPanel == null)
+        {
+            Debug.LogError("contentPanel nie jest przypisany!");
+            return;
+        }
+
         LoadPrefabsFromFolder();
     }
 
@@ -43,7 +56,11 @@ public class PrefabUIManager : MonoBehaviour
         button.transform.SetParent(contentPanel, false);
 
         // Ustawienie nazwy prefab jako tekstu na przycisku
-        button.GetComponentInChildren<Text>().text = prefab.name;
+        Text buttonText = button.GetComponentInChildren<Text>();
+        if (buttonText != null)
+        {
+            buttonText.text = prefab.name;
+        }
 
         // Dodaj listener na przycisk
         button.GetComponent<Button>().onClick.AddListener(() => OnPrefabButtonClick(prefab));
