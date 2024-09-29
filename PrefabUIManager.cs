@@ -50,20 +50,20 @@ public class PrefabUIManager : MonoBehaviour
         Button uiButton = button.AddComponent<Button>();
         button.transform.SetParent(contentPanel, false);
 
-        Image prefabImage = prefab.GetComponent<Image>();
-        if (prefabImage != null)
+        SpriteRenderer prefabSpriteRenderer = prefab.GetComponent<SpriteRenderer>();
+        if (prefabSpriteRenderer != null)
         {
-            // Jeœli prefab ma komponent Image, ustaw Source Image
+            // Jeœli prefab ma komponent Sprite Renderer, ustaw Sprite
             Image buttonImage = button.AddComponent<Image>();
-            buttonImage.sprite = prefabImage.sprite;
+            buttonImage.sprite = prefabSpriteRenderer.sprite;
             buttonImage.preserveAspect = true; // Zachowaj proporcje obrazu
         }
         else
         {
-            // Jeœli prefab nie ma komponentu Image, ustaw bia³y kolor i wyœwietl komunikat w logu
+            // Jeœli prefab nie ma komponentu Sprite Renderer, ustaw bia³y kolor i wyœwietl komunikat w logu
             Image buttonImage = button.AddComponent<Image>();
             buttonImage.color = Color.white;
-            Debug.LogWarning("Prefab " + prefab.name + " nie ma komponentu Image.");
+            Debug.LogWarning("Prefab " + prefab.name + " nie ma komponentu Sprite Renderer.");
         }
 
         // Ustaw rozmiar przycisku
